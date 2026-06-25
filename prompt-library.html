@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prompt Library – AI @ PMO</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:"Segoe UI",Arial,sans-serif;font-size:15px;color:#333;background:#fff;}
+
+    /* ── TOP NAV ── */
+    .topnav{background:#2c5f8a;color:#fff;display:flex;align-items:center;padding:0 24px;height:48px;gap:8px;}
+    .topnav .brand{font-weight:700;font-size:16px;margin-right:24px;}
+    .topnav a{color:#d9eaf5;text-decoration:none;padding:14px 14px;font-size:14px;}
+    .topnav a:hover{background:rgba(255,255,255,.12);}
+    .topnav a.active{background:rgba(255,255,255,.18);color:#fff;font-weight:600;}
+
+    /* ── LAYOUT ── */
+    .wrapper{display:flex;min-height:calc(100vh - 48px);}
+
+    /* ── SIDEBAR ── */
+    .sidebar{width:240px;flex-shrink:0;background:#f7f9fb;border-right:1px solid #e2e8f0;padding:20px 0;position:sticky;top:0;height:calc(100vh - 48px);overflow-y:auto;}
+    .sidebar a{display:block;padding:7px 20px;color:#2c5f8a;text-decoration:none;font-size:13px;border-left:3px solid transparent;}
+    .sidebar a:hover{background:#e8f0f8;border-left-color:#2c5f8a;}
+    .sidebar a.active{background:#dbeafe;border-left-color:#2c5f8a;font-weight:600;}
+    .sidebar a.sub{padding-left:32px;font-size:12.5px;color:#555;}
+    .sidebar a.sub:hover{color:#2c5f8a;}
+    .sidebar .section-label{padding:14px 20px 4px;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:#888;font-weight:700;}
+
+    /* ── MAIN ── */
+    .content{flex:1;padding:40px 52px 60px 48px;max-width:960px;}
+    h1{font-size:1.9rem;font-weight:700;color:#1a365d;margin-bottom:4px;}
+    .subtitle{color:#555;font-size:14px;margin-bottom:32px;}
+    h2{font-size:1.25rem;font-weight:700;color:#1a365d;margin:40px 0 16px;padding-bottom:8px;border-bottom:2px solid #e2e8f0;}
+    h2 .cat-icon{margin-right:8px;}
+
+    /* ── CATEGORY TAB BAR ── */
+    .tab-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:32px;}
+    .tab-btn{padding:8px 18px;border:2px solid #2c5f8a;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#2c5f8a;transition:all .15s;}
+    .tab-btn:hover,.tab-btn.active{background:#2c5f8a;color:#fff;}
+
+    /* ── PROMPT CARD ── */
+    .card{border:1px solid #e2e8f0;border-radius:10px;margin-bottom:20px;overflow:hidden;}
+    .card-header{padding:16px 20px;cursor:pointer;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;background:#fff;transition:background .1s;}
+    .card-header:hover{background:#f7f9fb;}
+    .card-header-left{flex:1;}
+    .card-title{font-size:1rem;font-weight:700;color:#1a365d;margin-bottom:3px;}
+    .card-role{font-size:12.5px;color:#555;font-style:italic;}
+    .card-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+    .badge{display:inline-block;padding:2px 9px;border-radius:4px;font-size:11.5px;font-weight:700;white-space:nowrap;}
+    .badge.generic {background:#27ae60;color:#fff;}
+    .badge.specific{background:#e67e22;color:#fff;}
+    .badge.light   {background:#3498db;color:#fff;}
+    .badge.heavy   {background:#2c3e50;color:#fff;}
+    .badge.tools   {background:#f0f4ff;color:#2c5f8a;border:1px solid #c7d8f8;}
+    .chevron{font-size:18px;color:#aaa;flex-shrink:0;margin-top:2px;transition:transform .2s;}
+    .card.open .chevron{transform:rotate(180deg);}
+
+    /* ── CARD BODY ── */
+    .card-body{display:none;border-top:1px solid #e2e8f0;}
+    .card.open .card-body{display:block;}
+    .card-section{padding:18px 20px;border-bottom:1px solid #f0f3f7;}
+    .card-section:last-child{border-bottom:none;}
+    .card-section h4{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:#888;font-weight:700;margin-bottom:10px;}
+    .card-section ul{padding-left:18px;}
+    .card-section ul li{margin-bottom:6px;font-size:14px;line-height:1.6;}
+    .tip-box{background:#fffbea;border-left:3px solid #f6c90e;padding:10px 14px;border-radius:4px;font-size:13px;color:#555;margin-top:10px;}
+
+    /* ── PROMPT CODE BLOCKS ── */
+    .prompt-block{background:#1e2a38;color:#d4e6f7;border-radius:8px;padding:16px 18px;font-family:"Courier New",monospace;font-size:12.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word;margin-top:8px;}
+    .prompt-label{font-size:12px;font-weight:700;color:#aaa;margin-bottom:4px;margin-top:14px;text-transform:uppercase;letter-spacing:.05em;}
+    .prompt-label:first-child{margin-top:0;}
+
+    /* ── TWO-COL IO ── */
+    .io-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+    @media(max-width:700px){.io-grid{grid-template-columns:1fr;}}
+    .io-col{background:#f7f9fb;border:1px solid #e2e8f0;border-radius:8px;padding:16px;}
+    .io-col h4{margin-bottom:10px;}
+
+    /* ── FOOTER ── */
+    footer{text-align:center;padding:16px;font-size:12px;color:#aaa;border-top:1px solid #e2e8f0;}
+  </style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <span class="brand">AI @ PMO</span>
+  <a href="index.html">AI Guideline</a>
+  <a href="prompt-library.html" class="active">Prompt Library</a>
+  <a href="#">Use Cases</a>
+</nav>
+
+<div class="wrapper">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="section-label">Categories</div>
+  <a href="#cat1" class="active">1. Initiation &amp; Planning</a>
+  <a href="#s6" class="sub">Project Charter</a>
+  <a href="#s7" class="sub">Project Schedule</a>
+  <a href="#s8" class="sub">Resource Allocation Plan</a>
+  <a href="#s9" class="sub">Capacity Forecast</a>
+  <a href="#s10" class="sub">Requirement &amp; Backlog Analysis</a>
+  <a href="#s11" class="sub">RAID Log</a>
+  <a href="#s12" class="sub">Stakeholder Register &amp; Map</a>
+  <a href="#s13" class="sub">Communication Plan</a>
+
+  <div class="section-label" style="margin-top:8px;">──</div>
+  <a href="#cat2">2. Execution</a>
+  <a href="#s15" class="sub">Presentation Slides</a>
+  <a href="#s16" class="sub">Action Item Prioritization</a>
+  <a href="#s17" class="sub">Meeting Request Email</a>
+  <a href="#s18" class="sub">Reschedule / Follow-up Email</a>
+  <a href="#s19" class="sub">MoM Distribution Email</a>
+
+  <div class="section-label" style="margin-top:8px;">──</div>
+  <a href="#cat3">3. Monitoring &amp; Controlling</a>
+  <a href="#s21" class="sub">What-If Impact Analysis</a>
+  <a href="#s22" class="sub">Change Impact Assessment</a>
+  <a href="#s23" class="sub">Draft CR Form</a>
+  <a href="#s24" class="sub">SteerCo Deck Content</a>
+  <a href="#s25" class="sub">Project Health Check</a>
+  <a href="#s26" class="sub">Dependency &amp; Blocker Detection</a>
+  <a href="#s27" class="sub">Executive Summary</a>
+
+  <div class="section-label" style="margin-top:8px;">──</div>
+  <a href="#cat4">4. Closure</a>
+  <a href="#s29" class="sub">Lessons Learned Report</a>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="content">
+  <h1>Prompt Library</h1>
+  <p class="subtitle">Sample prompts for PMO use cases — organized by project phase. Click any card to expand the prompt.</p>
+
+  <!-- ════════════════════════════════
+       CAT 1: INITIATION & PLANNING
+       ════════════════════════════════ -->
+  <h2 id="cat1"><span class="cat-icon">🚀</span>1. Initiation &amp; Planning</h2>
+
+  <!-- Slide 6: Project Charter -->
+  <div class="card" id="s6">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Generate a Project Charter</div>
+        <div class="card-role">AI as Project Analyst — Help PMOs rapidly define project scope, governance, and stakeholder alignment</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge heavy">Heavy</span>
+          <span class="badge tools">ChatGPT · Claude</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Project background &amp; business objectives</li>
+              <li>Scope (what's in / what's out)</li>
+              <li>Key stakeholders, sponsor &amp; PM</li>
+              <li>Budget, timeline, and constraints</li>
+            </ul>
+            <div class="tip-box">💡 Even a rough brief works — AI will surface gaps and list assumptions.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Formal project charter (ready to review)</li>
+              <li>Scope, objectives &amp; success criteria</li>
+              <li>Stakeholder RACI matrix draft</li>
+              <li>Risks, assumptions &amp; constraints</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">At project initiation — paste your project brief directly. No documents required for the template version.</p>
+        <div class="prompt-label">Template — replace the [ ] parts with your project details</div>
+        <div class="prompt-block">You are a [role, e.g., Senior PMO Specialist].
+Create a formal Project Charter for [Project Name]. A [project type] to [objective] for [organization].
+Context: Sponsor: [Name]. Stakeholders: [list]. Budget: [approx.]. Go-live: [date]. Constraints: [e.g., regulatory deadline].
+Scope (In): [what is included]. Scope (Out): [what is excluded]. Tone: [Executive-level / Team-facing].
+Output:
+Full Charter: Objectives | Scope In/Out | RACI | Milestones | Budget Summary | Risks &amp; Assumptions | Success Criteria | Sign-off section.
+Evaluation: Flag any section where data is missing. List all assumptions. Highlight top 3 risks to delivery.</div>
+        <div class="prompt-label">Full example — ready to use, attach 2–3 project documents</div>
+        <div class="prompt-block">You are a Senior PMO Specialist with 10+ years of IT transformation experience.
+Create a formal Project Charter for PMO Service for CBS project.
+Context: Sponsor: CFO | Stakeholders: IT. Attach: Proposal.
+Scope (In): PMO Service. Flag any information gap.
+Output: Full Charter: Objectives | Scope In/Out | RACI | Milestones | Budget | Risks &amp; Assumptions | Success Criteria | Sign-off table.
+Evaluation: Verify all sections complete. Flag assumptions without a source. Highlight top 3 risks to Go-Live.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 7: Project Schedule -->
+  <div class="card" id="s7">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Generate a Project Schedule</div>
+        <div class="card-role">AI as Project Analyst — Help PMOs structure, prioritize, and track project activities faster</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge heavy">Heavy</span>
+          <span class="badge tools">ChatGPT · Claude</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Project charter (objectives, scope, phases)</li>
+              <li>Team availability / capacity data</li>
+              <li>WBS or deliverable list (optional)</li>
+            </ul>
+            <div class="tip-box">💡 Include phase durations and known dependencies — AI builds a more realistic critical path.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Structured schedule with phases &amp; milestones</li>
+              <li>Task list with owners, durations &amp; dependencies</li>
+              <li>Critical path highlights &amp; schedule risks</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">At project kickoff or phase start. Attach charter + team roster.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., Senior PMO Specialist].
+Create a structured project schedule for [Project Name] covering phases: [list phases].
+Attach: [project charter + team roster or WBS].
+Team capacity: [X members, Y hrs/week]. Flag critical path tasks. [Director-level / Team-facing] tone.
+Output:
+Phase timeline table (Phase | Start | End | Duration)
+Task list (Task | Owner | Duration | Dependencies)
+Critical path with top 3 schedule risks
+Evaluation: Verify all phases from the charter are covered. Flag tasks without owners or missing dependencies.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a Senior PMO Specialist with 10+ years of IT project delivery experience.
+Create a structured project schedule for the ERP Integration project covering phases: Discovery, Design, Build, UAT, and Go-Live.
+The attached deck is the TCP DM&A Phase 3 Kick-off presentation. Use it as the sole source of truth for scope, workstreams, team structure, and timelines.
+Inputs provided: Phase 3 Kick-off deck (attached). Team availability: all members at 40 hrs/week unless stated otherwise.
+Output:
+Phase timeline table (Phase | Start | End | Duration)
+Task list (Task | Owner | Duration | Dependencies)
+Critical path with top 3 schedule risks
+Evaluation: Verify all phases from the charter are covered. Flag tasks without owners or missing dependencies.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 8: Resource Allocation -->
+  <div class="card" id="s8">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Resource Allocation Plan</div>
+        <div class="card-role">AI as Resource Planner — Optimize team allocation and forecast capacity gaps before they impact delivery</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge heavy">Heavy</span>
+          <span class="badge tools">ChatGPT · Claude</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Project plan (phases &amp; tasks with durations)</li>
+              <li>Team roster with roles &amp; availability (%)</li>
+              <li>Skills matrix (optional but recommended)</li>
+            </ul>
+            <div class="tip-box">💡 Include actual availability %, not just FTE counts — AI flags over-allocation accurately.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Resource allocation matrix (who does what, when)</li>
+              <li>Over-allocation warnings with recommended fixes</li>
+              <li>Skill gap analysis and hiring/contracting flags</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">At project start or when team composition changes. Attach project plan + team roster.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., Senior PMO Resource Manager].
+Create a resource allocation plan for [Project Name] covering [timeframe].
+Attach: [project plan + team roster with availability % + skills matrix (optional)].
+Flag over-allocation above [X]%. Identify skill gaps. [Director-level / PM-facing] tone.
+Output:
+Resource allocation matrix (Role | Person | Phase | % Allocated | Notes)
+Over-allocation flags with recommended mitigations
+Skill gap summary with hire/contract recommendations
+Evaluation: Verify total allocation per person does not exceed 100%. Flag phases with no assigned resource.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a Senior PMO.
+Create a resource allocation plan for Super App project covering from 21 Nov–4 Jun.
+Attach: the detailed project plan and the team roster (8 resources, varying availability).
+Flag over-allocation above 90%. Identify skill gaps for UAT phase. PM-facing, concise tone.
+Output:
+Resource allocation matrix (Role | Person | Phase | % Allocated | Notes)
+Over-allocation flags with recommended mitigations
+Skill gap summary with hire/contract recommendations
+Evaluation: Verify total allocation per person does not exceed 100%. Flag phases with no assigned resource.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 9: Capacity Forecast -->
+  <div class="card" id="s9">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Capacity Forecast</div>
+        <div class="card-role">AI as Resource Planner — Optimize team allocation and forecast capacity gaps before they impact delivery</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge heavy">Heavy</span>
+          <span class="badge tools">ChatGPT · Claude</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Resource allocation plan (current)</li>
+              <li>Sprint backlog with task estimates</li>
+              <li>Team calendar / actuals (if available)</li>
+            </ul>
+            <div class="tip-box">💡 Include actuals from past sprints — AI forecasts more accurately with historical velocity.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Capacity forecast: available hours vs. planned per person</li>
+              <li>Burnout/under-utilization risk flags (&gt;90% or &lt;60%)</li>
+              <li>3 rebalancing recommendations</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">Before sprint/phase planning. Attach resource plan + sprint backlog.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., PMO Capacity Planner].
+Forecast team capacity for the next [N] sprints for [Project Name]. Identify utilization risks.
+Attach: [resource allocation plan + sprint backlog with estimates + team calendar (optional)].
+Team: [X members, Y hrs/week]. Flag burnout risk above [90]% and under-utilization below [60]%. Concise tone.
+Output:
+Capacity table: Sprint | Member | Available Hrs | Planned Hrs | Utilization %
+Burnout and under-utilization risk flags
+3 rebalancing recommendations
+Evaluation: Verify capacity totals match team availability. Flag any sprint with >2 members at risk.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are an experienced PMO Capacity Planner specializing in Agile delivery.
+Forecast team capacity for Sprints 4–6 for the Super App project.
+Attach: the resource plan and the Sprint 4–6 backlog with estimates (6 developers, 40 hrs/week).
+Flag burnout >90% and under-utilization <60%. Concise, actionable format.
+Output:
+Capacity table: Sprint | Member | Available Hrs | Planned Hrs | Utilization %
+Burnout and under-utilization risk flags
+3 rebalancing recommendations
+Evaluation: Verify capacity totals match team availability. Flag any sprint with >2 members at risk.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 10: Requirement & Backlog -->
+  <div class="card" id="s10">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Requirement &amp; Backlog Analysis</div>
+        <div class="card-role">AI as Project Analyst — Help PMOs understand project information faster and identify risks early</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge heavy">Heavy</span>
+          <span class="badge tools">ChatGPT · Claude</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Requirement documents / user stories</li>
+              <li>Product backlog items (with acceptance criteria)</li>
+              <li>Business case or scope definition</li>
+            </ul>
+            <div class="tip-box">💡 Include acceptance criteria — AI flags vague or testability-gap requirements more accurately.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Gaps, conflicts, or missing requirements</li>
+              <li>Backlog items grouped by theme with priority</li>
+              <li>Risk flags for unclear or untestable requirements</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">At project start or sprint planning. Attach requirement docs + product backlog.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., Senior Business Analyst and PMO].
+Analyze the attached backlog and requirement documents for [Project Name]. Identify gaps and prioritization issues.
+Attach: [requirement documents + product backlog items].
+Flag vague requirements and missing acceptance criteria. [Director-level / Dev-team-facing] tone.
+Output:
+Gap analysis | Backlog by theme with priority | Top 3 risk flags
+Evaluation: Verify flagged gaps align with original scope. Identify any Sprint 1 blockers.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a Senior Business Analyst and PMO with 10+ years of enterprise software delivery experience.
+Analyze the attached backlog and requirement documents for the Super App Phase 2 project (Digital Payments module).
+Attach: the BRD (v2.1) and the 47-item product backlog with partial acceptance criteria.
+Flag vague requirements and missing acceptance criteria. Dev-team-facing, actionable tone.
+Output:
+Gap analysis | Backlog by theme with priority | Top 3 risk flags
+Evaluation: Verify flagged gaps align with original scope. Identify any Sprint 1 blockers.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 11: RAID Log -->
+  <div class="card" id="s11">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Generate RAID Log from Project Documents</div>
+        <div class="card-role">AI as RAID Analyst — Identify, structure, and maintain Risks, Assumptions, Issues &amp; Dependencies</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge heavy">Heavy</span>
+          <span class="badge tools">ChatGPT · Claude</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Project plan &amp; milestone tracker</li>
+              <li>Meeting notes / MoM documents (last 2–4 weeks)</li>
+              <li>Latest status report</li>
+            </ul>
+            <div class="tip-box">💡 The more meeting notes you attach, the more issues and dependencies AI will surface.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Structured RAID log (Risks, Assumptions, Issues, Dependencies)</li>
+              <li>Severity and priority rating for each item</li>
+              <li>Recommended owners and mitigation actions</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">At project start or after major milestones. Attach project plan + meeting notes + status report.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., Senior PMO Risk Analyst].
+Review the attached documents for [Project Name] and generate a complete RAID log.
+Attach: [project plan + meeting notes (last 2–4 weeks) + latest status report].
+Categorize each item as Risk/Assumption/Issue/Dependency. Rate severity (H/M/L). Assign recommended owners. Factual tone.
+Output: RAID table — ID | Category | Description | Severity | Owner | Mitigation/Action | Status
+Evaluation: Verify each item references a source document. Flag items with no clear owner or mitigation.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a Senior PMO Risk Analyst with expertise in RAID management for IT projects.
+Review the attached project documents for the Super App project and generate a complete RAID log.
+Attach: the project plan, MoM from Weeks 15–18, and the Week 18 status report.
+Categorize each item as Risk/Assumption/Issue/Dependency. Rate severity (H/M/L). Assign recommended owners. Factual tone.
+Output: RAID table — ID | Category | Description | Severity | Owner | Mitigation | Status
+Evaluation: Verify each item references a source document. Flag items with no clear owner or mitigation.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 12: Stakeholder Register -->
+  <div class="card" id="s12">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Stakeholder Register &amp; Map</div>
+        <div class="card-role">AI as Stakeholder Advisor — Map influence, tailor communication, and keep stakeholders engaged</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge heavy">Heavy</span>
+          <span class="badge tools">ChatGPT · Claude</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Project charter (stakeholder section)</li>
+              <li>Org chart / stakeholder directory</li>
+              <li>Any known stakeholder concerns or history</li>
+            </ul>
+            <div class="tip-box">💡 Include roles and reporting lines — AI classifies influence/interest more accurately.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Stakeholder register with roles, interests &amp; influence level</li>
+              <li>Influence-Interest 2×2 map (classify &amp; manage)</li>
+              <li>Recommended engagement strategy per group</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">At project start or when the team changes. Attach project charter + org chart.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., Senior PMO Stakeholder Manager].
+Create a stakeholder register and influence-interest map for [Project Name].
+Attach: [project charter + org chart or stakeholder directory]. Classify each stakeholder by influence (H/M/L) and interest (H/M/L). [Director-level] tone.
+Output:
+Stakeholder register: Name | Role | Interest | Influence | Engagement Strategy
+Influence-Interest 2x2 map with quadrant labels
+Top 3 engagement priorities with recommended actions
+Evaluation: Confirm all key decision-makers are included. Flag any stakeholder with HIGH influence but no engagement plan.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a Senior PMO Stakeholder Manager with experience in cross-functional enterprise programs.
+Create a stakeholder register and influence-interest map for the Super App project.
+Attach: the project plan and the org chart (15 stakeholders across Finance, IT, and Operations).
+Classify each stakeholder by influence and interest. Director-level, professional tone.
+Output:
+Stakeholder register: Name | Role | Interest | Influence | Engagement Strategy
+Influence-Interest 2x2 map with quadrant labels
+Top 3 engagement priorities with recommended actions
+Evaluation: Confirm all key decision-makers are included. Flag any stakeholder with HIGH influence but no engagement plan.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 13: Communication Plan -->
+  <div class="card" id="s13">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Stakeholder Communication Plan</div>
+        <div class="card-role">AI as Stakeholder Advisor — Map influence, tailor communication, and keep stakeholders engaged</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge heavy">Heavy</span>
+          <span class="badge tools">ChatGPT · Claude</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Stakeholder register (current version)</li>
+              <li>Existing reporting calendar or cadence</li>
+            </ul>
+            <div class="tip-box">💡 Note any stakeholders who previously received insufficient updates — AI flags gaps proactively.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Communication plan table (who, what, when, channel)</li>
+              <li>Key messages per stakeholder group</li>
+              <li>Escalation protocol for unresponsive stakeholders</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">After completing the stakeholder register. Attach register + reporting cadence. Can use output from the Stakeholder Register prompt.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., PMO Communication Lead].
+Draft a stakeholder communication plan for [Project Name] covering [timeframe].
+Attach: [stakeholder register + reporting calendar or cadence].
+Tailor message format per stakeholder group (executive vs. team-level). [Formal] tone.
+Output:
+Communication plan: Stakeholder | Message Type | Frequency | Channel | Owner
+Key messages per group (1-2 lines each)
+Escalation protocol for non-responsive stakeholders
+Evaluation: Confirm all HIGH-influence stakeholders have a regular touchpoint. Flag any group with no communication scheduled.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are an experienced PMO Communication Lead.
+Draft a stakeholder communication plan for the Super App project.
+Attach: the stakeholder register (15 stakeholders) and the existing steering committee cadence.
+Tailor by group: executive (monthly brief), IT (weekly), end users (bi-weekly). Formal tone.
+Output:
+Communication plan: Stakeholder | Message Type | Frequency | Channel | Owner
+Key messages per group (1-2 lines each)
+Escalation protocol for non-responsive stakeholders
+Evaluation: Confirm all HIGH-influence stakeholders have a regular touchpoint. Flag any group with no communication scheduled.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════
+       CAT 2: EXECUTION
+       ════════════════════════════════ -->
+  <h2 id="cat2"><span class="cat-icon">⚙️</span>2. Execution</h2>
+
+  <!-- Slide 15: Presentation Slides -->
+  <div class="card" id="s15">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Presentation Slide Generation</div>
+        <div class="card-role">AI as Reporting Assistant — Transform project information into management-ready reports</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge heavy">Heavy</span>
+          <span class="badge tools">Claude</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Project brief or scope document</li>
+              <li>Presentation structure template (if available)</li>
+              <li>Key messages or talking points</li>
+            </ul>
+            <div class="tip-box">💡 Define the audience and purpose upfront — AI tailors language, depth, and tone accordingly.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Slide-by-slide content (title + 3–5 bullets per slide)</li>
+              <li>Speaker notes for each slide</li>
+              <li>Suggested visual elements or charts per slide</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">When creating a client or stakeholder presentation. Attach project brief + structure template.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., PMO Consultant / Presentation Designer]. Create a [N]-slide presentation for [Project Name] for [audience] on [topic/purpose] using the attached BBIK PowerPoint template as the primary design and formatting reference.
+Attach: [project brief + structure template + key talking points].
+Audience: [executives / client / internal team]. Tone: [formal / persuasive / informative]. Max [N] bullets per slide.
+Output:
+6 slides with title + bullets + speaker notes + suggested visual
+Evaluation: Each slide must have one clear message. Flag slides with >5 bullets or missing speaker notes.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a PMO Consultant creating a client-facing presentation for the Super App project.
+Create a 6-slide progress presentation for the ABC Corporation client on status (Week 22) using the attached BBIK PowerPoint template as the primary design and formatting reference.
+Attach: the project brief (scope: Digital Payments module) and the BBIK presentation template.
+Audience: Client C-Suite. Formal, reassuring tone. Max 5 bullets per slide.
+Output:
+6 slides with title + bullets + speaker notes + suggested visual
+Evaluation: Each slide must have one clear message. Flag slides with >5 bullets or missing speaker notes.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 16: Action Item Prioritization -->
+  <div class="card" id="s16">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Action Item Prioritization</div>
+        <div class="card-role">AI as PMO Assistant — Help PMOs focus on the most critical actions and proactively manage blockers</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge heavy">Heavy</span>
+          <span class="badge tools">ChatGPT · Claude</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Action tracker (all open items with IDs)</li>
+              <li>Jira export or task board snapshot</li>
+              <li>Latest project updates or status report</li>
+            </ul>
+            <div class="tip-box">💡 Include due dates and stakeholder names — AI surfaces overdue high-impact items automatically.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Prioritized action list (Critical / High / Medium / Low)</li>
+              <li>Overdue items flagged with escalation recommendation</li>
+              <li>This-week focus list (top 5 actions)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">Weekly or before sprint planning. Attach action tracker + project updates.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., PMO Assistant].
+Review the attached action tracker for [Project Name] (Week [X]). Prioritize all [N] open actions.
+Attach: [action tracker + Jira export or task board + latest project updates].
+Prioritize by: due date, impact on project delivery, blocking status. Concise, actionable tone.
+Output:
+Prioritized list: Priority | Action ID | Description | Owner | Due Date | Status
+Overdue items with escalation recommendation
+This-week focus: Top 5 actions to complete
+Evaluation: Confirm all CRITICAL items have a named owner. Flag overdue actions with no escalation plan.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a PMO Assistant supporting the Super App project team.
+Review the action tracker for the Super App project (Week 18, 34 open actions). Prioritize all items.
+Attach: the action tracker, Sprint 4 Jira export, and the Week 18 status report.
+Prioritize by due date, delivery impact, and blocking status. Concise, actionable tone.
+Output:
+Prioritized list: Priority | Action ID | Description | Owner | Due Date | Status
+Overdue items with escalation recommendation
+This-week focus: Top 5 actions to complete
+Evaluation: Confirm all CRITICAL items have a named owner. Flag overdue actions with no escalation plan.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 17: Meeting Request Email -->
+  <div class="card" id="s17">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Initial Meeting Request Email</div>
+        <div class="card-role">AI as Communication Assistant — Craft professional, context-aware meeting emails in minutes</div>
+        <div class="card-badges">
+          <span class="badge generic">Generic</span>
+          <span class="badge light">Light</span>
+          <span class="badge tools">ChatGPT · Claude · Gemini · Copilot</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Meeting purpose &amp; key objectives</li>
+              <li>Attendee names, roles &amp; organization</li>
+              <li>2–3 proposed time slots &amp; platform (Teams/Zoom/in-person)</li>
+            </ul>
+            <div class="tip-box">💡 Provide actual date/time options with timezone — "next week" produces generic outputs.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Professional meeting request email (ready to send)</li>
+              <li>Clear agenda aligned to objectives</li>
+              <li>Polite, formal tone — ready to send</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">When scheduling a first-time or formal meeting. No documents needed — works with text input.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., PMO Communication Lead].
+Draft a formal meeting request email to [recipient name &amp; role] at [organization] for [meeting purpose].
+Objectives: [list 2–3 objectives]. Proposed slots: [option 1], [option 2], [option 3]. Platform: [Teams/Zoom/in-person]. [Formal] tone. Duration: [X mins]. Include a brief agenda.
+Output: Complete email with subject line, body, and proposed agenda.
+Evaluation: Confirm subject line is specific, agenda items match objectives, and tone is appropriate for [recipient level].</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a professional PMO Communication Lead at Bluebik Group.
+Draft a formal meeting request email to the Head of Finance and IT Director at ABC Corporation for the ERP Integration project kickoff.
+Objectives: align on project scope, confirm resource commitments, agree on governance structure.
+Slots: Mon 23 Jun 10:00–11:00 BKK / Tue 24 Jun 14:00–15:00 / Wed 25 Jun 09:00–10:00. Platform: Microsoft Teams.
+Formal, professional tone. Duration: 60 mins. Include brief agenda.
+Output: Complete email with subject line, body, and proposed agenda.
+Evaluation: Subject line must name the project. Agenda must cover all 3 objectives. Tone appropriate for C-Suite.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 18: Reschedule Email -->
+  <div class="card" id="s18">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Meeting Reschedule / Follow-up Email</div>
+        <div class="card-role">AI as Communication Assistant — Craft professional, context-aware meeting emails in minutes</div>
+        <div class="card-badges">
+          <span class="badge generic">Generic</span>
+          <span class="badge light">Light</span>
+          <span class="badge tools">ChatGPT · Claude · Gemini · Copilot</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Original meeting title &amp; date</li>
+              <li>Reason for rescheduling (optional)</li>
+              <li>2–3 new proposed time slots</li>
+            </ul>
+            <div class="tip-box">💡 Mention the original date in the email — it helps recipients recall the context immediately.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Polite reschedule or follow-up email (ready to send)</li>
+              <li>Updated time slot options clearly presented</li>
+              <li>Professional tone maintaining relationship</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">When rescheduling a meeting or following up after no response. Paste context — no documents needed.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., PMO Coordinator].
+Draft a [reschedule / follow-up] email for the [meeting title] originally scheduled on [original date].
+Context: [brief reason for change, if applicable]. New slots: [option 1], [option 2], [option 3].
+Polite, professional tone. Keep it brief — max 3 paragraphs.
+Output: Complete email with subject line and body.
+Evaluation: Confirm the original meeting is referenced, new slots are clearly stated, and tone is appropriate.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a PMO Coordinator at Bluebik Group.
+Draft a reschedule email for the ERP Integration Steering Committee originally planned for Week 18 (Mon 10 Jun) — postponed due to CFO travel.
+New proposed slots: Wed 19 Jun 14:00–15:30, Thu 20 Jun 10:00–11:30, Mon 24 Jun 14:00–15:30. Same attendees.
+Polite, professional tone. Reference original date. Max 3 paragraphs.
+Output: Complete email with subject line and body.
+Evaluation: Confirm original date referenced, all 3 new slots listed, and CFO travel not detailed (out of respect).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 19: MoM Distribution Email -->
+  <div class="card" id="s19">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Draft MoM Distribution Email</div>
+        <div class="card-role">AI as Meeting Scribe — Convert raw meeting notes into structured, actionable Minutes of Meeting</div>
+        <div class="card-badges">
+          <span class="badge generic">Generic</span>
+          <span class="badge light">Light</span>
+          <span class="badge tools">ChatGPT · Claude · Gemini · NotebookLM</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Finalized MoM document</li>
+              <li>Attendee list (or reply-to email thread)</li>
+              <li>Meeting recording (Suggested for NotebookLM)</li>
+            </ul>
+            <div class="tip-box">💡 Mention the key decisions in the email body — not everyone reads the full MoM attachment.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Professional MoM distribution email</li>
+              <li>Key decisions and action items highlighted in the body</li>
+              <li>Ready to send with MoM as attachment</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">After MoM is ready. Paste the MoM — no other documents needed.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., PMO Communication Specialist].
+Draft a distribution email to send the finalized MoM for [meeting name] on [date] to all attendees.
+Attach: [finalized MoM document + attendee list].
+Include 2–3 key decisions and top action items in the email body. [Professional] tone. Keep under 150 words.
+Output: Complete email with subject line and body (MoM as attachment reference).
+Evaluation: Confirm key decisions are mentioned in the body. Flag if email exceeds 150 words.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a PMO Communication Specialist at Bluebik Group.
+Draft a distribution email to send the finalized MoM for Daily Meeting on 19 May 2025 to all attendees.
+Attach: the finalized MoM.
+Highlight 3 key decisions and top action items in the body. Professional tone. Under 150 words.
+Output: Complete email with subject line and body.
+Evaluation: 3 decisions must appear in body. Email must be ≤150 words. Tone appropriate for internal team.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════
+       CAT 3: MONITORING & CONTROLLING
+       ════════════════════════════════ -->
+  <h2 id="cat3"><span class="cat-icon">📊</span>3. Monitoring &amp; Controlling</h2>
+
+  <!-- Slide 21: What-If -->
+  <div class="card" id="s21">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">What-If Impact Analysis</div>
+        <div class="card-role">AI as Risk &amp; Scenario Planner — Model scenarios and assess impact before decisions are made</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge heavy">Heavy</span>
+          <span class="badge tools">ChatGPT · Claude · Gemini</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Project schedule / Gantt chart (current)</li>
+              <li>Resource plan with task assignments</li>
+              <li>Proposed change or delay scenario</li>
+            </ul>
+            <div class="tip-box">💡 Describe the exact change scenario — "2-week Build delay" is more actionable than "delay".</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Impact on Go-Live date per scenario</li>
+              <li>Critical path recalculation</li>
+              <li>Mitigation options with tradeoffs</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">When a delay or change is proposed. Attach project schedule + resource plan.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., Senior PMO Risk Analyst].
+Run a What-If analysis on [Project Name] schedule for the scenario: [describe change/delay].
+Attach: [project schedule + resource plan].
+Assume [X-week delay in Phase Y]. Show best-case, likely-case, worst-case outcomes. [Director-level] tone.
+Output:
+Impact summary per scenario (Go-Live date shift, affected tasks)
+Revised critical path
+Top 3 mitigation options with effort and risk tradeoffs
+Evaluation: Confirm the critical path recalculation is consistent with the schedule. Flag assumptions made.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a Senior PMO Risk Analyst with expertise in schedule risk modeling.
+Run a What-If analysis on ERP Integration project schedule for the scenario: delay on Phase 2 in requirement gathering.
+Attach: project schedule + resource plan.
+Assume 1-week delay. Show best-case, likely-case, worst-case outcomes. Director-level tone.
+Output:
+Impact summary per scenario (Go-Live date shift, affected tasks)
+Revised critical path
+Top 3 mitigation options with effort and risk tradeoffs
+Evaluation: Confirm the critical path recalculation is consistent with the schedule. Flag assumptions made.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 22: Change Impact Assessment -->
+  <div class="card" id="s22">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Change Impact Assessment</div>
+        <div class="card-role">AI as Change Analyst — Assess, document, and communicate project changes with speed and clarity</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge heavy">Heavy</span>
+          <span class="badge tools">ChatGPT · Claude</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Change Request (CR) Register</li>
+              <li>Current project plan (Gantt + resource plan)</li>
+              <li>Relevant scope baseline section</li>
+            </ul>
+            <div class="tip-box">💡 Include the project's critical path — AI identifies whether the change directly impacts delivery.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Impact per dimension: Scope / Schedule / Budget / Resource / Risk</li>
+              <li>Overall change risk rating (Low / Medium / High)</li>
+              <li>Approval recommendation with conditions</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">After a CR is submitted — before it is approved, to quantify the full impact.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., Senior PMO Business Analyst].
+Perform a Change Impact Assessment for [Project Name]. CR: [CR number]. Assess: scope, schedule, budget, resource, risk.
+Attach: [CR form + current project plan + scope baseline]. Note the critical path and any fixed go-live dates. Factual, evidence-based tone.
+Output:
+Impact summary per dimension: Scope | Schedule | Budget | Resource | Risk (H/M/L)
+Overall change risk rating with rationale
+Approval recommendation with conditions or caveats
+Evaluation: Confirm impact estimates are sourced from attached documents. Flag any dimension without a quantified estimate.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a Senior PMO Business Analyst with expertise in change impact evaluation.
+Perform a Change Impact Assessment on Super App project. Assess: scope, schedule, budget, resource, and risk impact.
+The attached CR document relates to the Thailand Post Super Application project delivered by Bluebik Group PCL. The project critical path runs sequentially through Design → Build → Test → Deploy. All impact estimates must be traceable to the attached CR or project Timeline sheet. Do not infer, assume, or estimate any figure not present in the source documents.
+Evidence-based tone.
+Output:
+Impact summary per dimension | Overall risk rating | Approval recommendation
+Evaluation: Verify all impact estimates reference the attached plan. Flag anything unquantified.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 23: Draft CR Form -->
+  <div class="card" id="s23">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Draft Change Request (CR) Form</div>
+        <div class="card-role">AI as Change Analyst — Assess, document, and communicate project changes with speed and clarity</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge light">Light</span>
+          <span class="badge tools">Claude</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Scope change request or email thread from stakeholder</li>
+              <li>Current approved project scope baseline</li>
+              <li>Relevant section of the project plan</li>
+            </ul>
+            <div class="tip-box">💡 Paste the requestor's exact email text — avoids interpretation errors in the CR.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Formal CR form with impact assessment</li>
+              <li>Schedule &amp; budget impact summary</li>
+              <li>Approval recommendation &amp; next steps</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">When a scope change is requested — immediately after stakeholder discussion.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., Senior PMO Change Manager].
+Draft a formal Change Request form for [Project Name]. CR#: [CR number]. Change: [brief description].
+Attach: [scope change email/request + current scope baseline].
+Include: change description, business justification, schedule/budget/risk impact, approval recommendation. [Formal] tone.
+Output: CR form with all standard fields.
+Evaluation: Verify all CR fields are populated. Flag if budget/schedule impact is missing or unquantified.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a Senior PMO Change Manager with expertise in formal change governance.
+Draft a formal CR form for the scope change requested.
+Attach: the CR document. Include all standard CR fields. Budget impact in person-days.
+No speculation — use attached documents only. Formal tone.
+Output: CR form with all standard fields.
+Evaluation: Confirm all fields are populated. Flag any impact estimate that lacks a source.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 24: SteerCo Deck -->
+  <div class="card" id="s24">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Steering Committee Deck Content</div>
+        <div class="card-role">AI as Reporting Assistant — Transform project information into management-ready reports</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge heavy">Heavy</span>
+          <span class="badge tools">Claude</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Project updates (scope, schedule, budget, risks)</li>
+              <li>Previous SteerCo minutes / action tracker</li>
+              <li>Steering Committee slide template (if available)</li>
+            </ul>
+            <div class="tip-box">💡 Attach previous minutes — AI checks open actions and shows progress automatically.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>SteerCo slide content per section (Status, Risks, Decisions)</li>
+              <li>Action item follow-up table (from previous meeting)</li>
+              <li>Decision papers with recommendation and options</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">Before a SteerCo meeting. Attach latest project updates + SteerCo template.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., PMO Consultant preparing a SteerCo deck].
+Generate Steering Committee slide content for [Project Name] — meeting on [date] using the attached BBIK PowerPoint template as the primary design and formatting reference.
+Attach: [project updates + previous SteerCo minutes + slide template (optional)].
+Executive tone. Each slide max 5 bullet points. Flag items needing Board decision. [Director-level] language.
+Output:
+Status slide | Risks &amp; Issues slide | Decisions slide | Action follow-up slide
+Evaluation: Verify all decision items have a clear recommendation. Flag any slide with more than 5 bullets.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a PMO Consultant preparing the Super App SteerCo deck for the Board meeting (Week 11).
+Generate slide content for the Super App Steering Committee — Week 11 meeting using the attached SteerCo slide template as the primary design and formatting reference.
+Attach: the Week 11 project updates and the previous SteerCo slide template.
+Executive tone. Max 5 bullets per slide. Flag Board decision items. Director-level language.
+Output:
+Status slide | Risks &amp; Issues slide | Decisions slide | Action follow-up slide
+Evaluation: All decision items must have a clear recommendation. Flag slides exceeding 5 bullets.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 25: Health Check -->
+  <div class="card" id="s25">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Project Health Check Assessment</div>
+        <div class="card-role">AI as Project Analyst — Help PMOs understand project information faster and identify risks early</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge heavy">Heavy</span>
+          <span class="badge tools">ChatGPT · Claude · Gemini</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Project plan &amp; milestone tracker (current)</li>
+              <li>RAID log (latest version)</li>
+              <li>Status report (latest period)</li>
+            </ul>
+            <div class="tip-box">💡 Attach the RAID log with all open items — AI flags escalation-worthy risks automatically.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>RAG status per dimension (Scope/Schedule/Budget/Risk/Team)</li>
+              <li>Top 3 escalation-worthy issues</li>
+              <li>Recommended corrective actions with owners</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">Weekly or at phase gates. Attach project plan + RAID log + status report.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., PMO Reviewer].
+Conduct a health check assessment for [Project Name] as of [date/week].
+Attach: [project plan + RAID log + status report].
+RAG-rate each dimension. Flag items requiring escalation. [Director-level] tone.
+Output:
+RAG dashboard: Scope | Schedule | Budget | Risk | Team (with 1-line rationale each)
+Top 3 issues requiring escalation
+Recommended corrective actions with suggested owners
+Evaluation: Cross-check RAG ratings against source data. Flag if any dimension contradicts the status report.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are an experienced PMO Reviewer with expertise in enterprise project governance.
+Conduct a health check assessment for the ERP Integration project as of Week 11.
+Attach: the milestone tracker, the latest RAID log (22 open items), and the Week 11 status report.
+RAG-rate each dimension. Flag items requiring Steering Committee escalation. Director-level tone.
+Output:
+RAG dashboard: Scope | Schedule | Budget | Risk | Team (with 1-line rationale each)
+Top 3 issues requiring escalation
+Recommended corrective actions with suggested owners
+Evaluation: Verify RAG ratings are supported by the attached documents. Flag any contradictions.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 26: Dependency & Blocker -->
+  <div class="card" id="s26">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Dependency &amp; Blocker Detection</div>
+        <div class="card-role">AI as PMO Assistant — Help PMOs focus on the most critical actions and proactively manage blockers</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge heavy">Heavy</span>
+          <span class="badge tools">ChatGPT · Claude · Gemini</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Project tracker / Gantt (current)</li>
+              <li>Backlog with task statuses</li>
+              <li>Latest status report</li>
+            </ul>
+            <div class="tip-box">💡 Tag tasks as "blocked" or "waiting" in your tracker — AI identifies cascading impacts faster.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Cross-team dependency map with impact assessment</li>
+              <li>Blocker list with resolution recommendations</li>
+              <li>Cascading risk analysis (what else breaks if blocked)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">Before sprint planning or milestone reviews. Attach project tracker + backlog + status report.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., Senior PMO Analyst]. Review the attached tracker and backlog for [Project Name]. Identify all cross-team dependencies and active blockers.
+Attach: [project tracker + backlog with statuses + latest status report]. Flag all items with status "blocked" or "waiting". Show cascading impact. [PM-facing] tone.
+Output:
+Dependency map: Task | Depends On | Team | Status | Impact if Delayed
+Blocker list with resolution recommendation and owner
+Cascade analysis: top 3 items that will break if blockers persist
+Evaluation: Verify all blockers reference a specific task ID. Flag blockers with no resolution plan or owner.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a Senior PMO Analyst for the Super App project.
+Identify all cross-team dependencies and active blockers in the Super App project.
+Attach: the current project tracker, backlog (47 tasks), and the current status report.
+Flag all "blocked" / "waiting" tasks. Show cascading impact. PM-facing, concise tone.
+Output:
+Dependency map: Task | Depends On | Team | Status | Impact if Delayed
+Blocker list with resolution recommendation and owner
+Cascade analysis: top 3 items that will break if blockers persist
+Evaluation: Verify all blockers reference a specific task ID. Flag blockers with no resolution plan or owner.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 27: Executive Summary -->
+  <div class="card" id="s27">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Executive Summary Generation</div>
+        <div class="card-role">AI as Reporting Assistant — Transform project information into management-ready reports</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge light">Light</span>
+          <span class="badge tools">ChatGPT · Claude · Gemini</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Status report (current period)</li>
+              <li>RAID log (latest version)</li>
+              <li>Project tracker / Gantt (current)</li>
+            </ul>
+            <div class="tip-box">💡 Always use the current period's status report — outdated data produces misleading summaries.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>One-page executive summary with RAG status</li>
+              <li>Key decisions required from leadership</li>
+              <li>Upcoming milestones &amp; critical risks</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">Before steering committee or executive updates. Attach status report + RAID + tracker.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., PMO Consultant].
+Generate a one-page executive summary for [Project Name] for [audience] as of [date/week].
+Attach: [status report + RAID log + project tracker].
+Use formal, concise language. No jargon. Highlight decisions needed. [Director-level] tone.
+Output:
+Overall RAG status with 1-sentence justification
+3 key accomplishments this period
+2–3 issues/risks requiring executive attention
+Decisions required (numbered)
+Upcoming milestones — next 2 weeks
+Evaluation: Every item must reference a source document. Flag anything stated without evidence.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a PMO Consultant with 10+ years of executive reporting experience.
+Generate a one-page executive summary for the Digital Payments Platform project for the Steering Committee.
+Attach: the current status report, RAID log, and project tracker.
+Formal, concise language. No jargon. Highlight decisions needed. Director-level tone.
+Output:
+Overall RAG status with 1-sentence justification
+3 key accomplishments this period
+2–3 issues/risks requiring executive attention
+Decisions required (numbered)
+Upcoming milestones — next 2 weeks
+Evaluation: Every item must reference a source document. Flag anything stated without evidence.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════
+       CAT 4: CLOSURE
+       ════════════════════════════════ -->
+  <h2 id="cat4"><span class="cat-icon">✅</span>4. Closure</h2>
+
+  <!-- Slide 29: Lessons Learned -->
+  <div class="card" id="s29">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="card-header-left">
+        <div class="card-title">Lessons Learned Report</div>
+        <div class="card-role">AI as Retrospective Facilitator — Extract insights and best practices to improve future projects</div>
+        <div class="card-badges">
+          <span class="badge specific">Specific</span>
+          <span class="badge heavy">Heavy</span>
+          <span class="badge tools">ChatGPT · Claude · Gemini</span>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="card-body">
+      <div class="card-section">
+        <div class="io-grid">
+          <div class="io-col">
+            <h4>INPUT</h4>
+            <ul>
+              <li>Project Closure Report (scope, budget &amp; timeline)</li>
+              <li>RAID Log (complete history, incl. resolved items)</li>
+              <li>Team Retrospective Survey (min. 5 responses)</li>
+            </ul>
+            <div class="tip-box">💡 If unavailable, use status reports + meeting notes as a substitute for the closure report.</div>
+          </div>
+          <div class="io-col">
+            <h4>OUTPUT</h4>
+            <ul>
+              <li>Lessons Learned report (by People / Process / Technology)</li>
+              <li>Root cause analysis with recurrence risk rating</li>
+              <li>Top 5 recommendations for the next project</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h4>When to use</h4>
+        <p style="font-size:14px;">At project closure or end-of-phase review. Attach closure report + RAID + retrospective survey.</p>
+        <div class="prompt-label">Template</div>
+        <div class="prompt-block">You are a [role, e.g., Senior PMO Retrospective Facilitator].
+Review the attached documents and generate a Lessons Learned report for [Project Name].
+Attach: [project closure report + RAID log + retrospective survey responses].
+Evidence-based only. [1-2] sentences per finding. [Director-level / Team-facing] tone. No speculation.
+Output:
+Executive Summary (2–3 sentences)
+What Went Well (by People / Process / Technology)
+Areas for Improvement (with root cause)
+Top 5 Recommendations
+Evaluation: Every finding must map to a source document. Flag any gap where evidence is insufficient.</div>
+        <div class="prompt-label">Full example</div>
+        <div class="prompt-block">You are a Senior PMO Retrospective Facilitator with 10+ years of post-project review experience.
+Generate a formal Lessons Learned Report for DM&A Phase 2 based exclusively on content found in the attached closure deck.
+Attach: The project closure report.
+Evidence-based only. 1–2 sentences per finding. Professional, Director-level tone. No speculation.
+Output:
+Executive Summary | What Went Well (People/Process/Technology) | Areas for Improvement | Top 5 Recommendations
+Evaluation: Every finding must cite a source. Flag any finding without supporting evidence.</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div><!-- end wrapper -->
+
+<footer>© 2026 BLUEBIK GROUP. ALL RIGHTS RESERVED.</footer>
+
+<script>
+  function toggle(header) {
+    const card = header.closest('.card');
+    card.classList.toggle('open');
+  }
+  // Smooth scroll for sidebar links
+  document.querySelectorAll('.sidebar a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>
