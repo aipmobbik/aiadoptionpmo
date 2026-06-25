@@ -9,50 +9,50 @@
     body{font-family:"Segoe UI",Arial,sans-serif;font-size:15px;color:#333;background:#fff;}
 
     /* ── TOP NAV ── */
-    .topnav{background:#2c5f8a;color:#fff;display:flex;align-items:center;padding:0 24px;height:48px;gap:8px;}
-    .topnav .brand{font-weight:700;font-size:16px;margin-right:24px;}
-    .topnav a{color:#d9eaf5;text-decoration:none;padding:14px 14px;font-size:14px;}
+    .topnav{background:#2B3478;color:#fff;display:flex;align-items:center;padding:0 24px;height:48px;gap:8px;}
+    .topnav .brand{font-weight:700;font-size:16px;margin-right:24px;color:#fff;letter-spacing:.01em;}
+    .topnav a{color:#c4d6f5;text-decoration:none;padding:14px 14px;font-size:14px;transition:background .15s;}
     .topnav a:hover{background:rgba(255,255,255,.12);}
-    .topnav a.active{background:rgba(255,255,255,.18);color:#fff;font-weight:600;}
+    .topnav a.active{background:rgba(69,200,240,.22);color:#fff;font-weight:600;border-bottom:2px solid #45C8F0;}
 
     /* ── LAYOUT ── */
     .wrapper{display:flex;min-height:calc(100vh - 48px);}
 
     /* ── SIDEBAR ── */
-    .sidebar{width:240px;flex-shrink:0;background:#f7f9fb;border-right:1px solid #e2e8f0;padding:20px 0;position:sticky;top:0;height:calc(100vh - 48px);overflow-y:auto;}
-    .sidebar a{display:block;padding:7px 20px;color:#2c5f8a;text-decoration:none;font-size:13px;border-left:3px solid transparent;}
-    .sidebar a:hover{background:#e8f0f8;border-left-color:#2c5f8a;}
-    .sidebar a.active{background:#dbeafe;border-left-color:#2c5f8a;font-weight:600;}
-    .sidebar a.sub{padding-left:32px;font-size:12.5px;color:#555;}
-    .sidebar a.sub:hover{color:#2c5f8a;}
-    .sidebar .section-label{padding:14px 20px 4px;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:#888;font-weight:700;}
+    .sidebar{width:240px;flex-shrink:0;background:#f4f7fb;border-right:1px solid #dce6f0;padding:20px 0;position:sticky;top:0;height:calc(100vh - 48px);overflow-y:auto;}
+    .sidebar a{display:block;padding:7px 20px;color:#2B3478;text-decoration:none;font-size:13px;border-left:3px solid transparent;transition:background .12s;}
+    .sidebar a:hover{background:#e3eef8;border-left-color:#5280CC;}
+    .sidebar a.active{background:#dbeeff;border-left-color:#2752E0;font-weight:600;color:#2752E0;}
+    .sidebar a.sub{padding-left:32px;font-size:12.5px;color:#556;}
+    .sidebar a.sub:hover{color:#2752E0;}
+    .sidebar .section-label{padding:14px 20px 4px;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:#8899aa;font-weight:700;}
 
     /* ── MAIN ── */
     .content{flex:1;padding:40px 52px 60px 48px;max-width:960px;}
-    h1{font-size:1.9rem;font-weight:700;color:#1a365d;margin-bottom:4px;}
-    .subtitle{color:#555;font-size:14px;margin-bottom:32px;}
-    h2{font-size:1.25rem;font-weight:700;color:#1a365d;margin:40px 0 16px;padding-bottom:8px;border-bottom:2px solid #e2e8f0;}
+    h1{font-size:1.9rem;font-weight:700;color:#2B3478;margin-bottom:4px;}
+    .subtitle{color:#5280CC;font-size:14px;font-style:italic;margin-bottom:32px;}
+    h2{font-size:1.25rem;font-weight:700;color:#2B3478;margin:40px 0 16px;padding-bottom:8px;border-bottom:2px solid #45C8F0;}
     h2 .cat-icon{margin-right:8px;}
 
     /* ── CATEGORY TAB BAR ── */
     .tab-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:32px;}
-    .tab-btn{padding:8px 18px;border:2px solid #2c5f8a;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#2c5f8a;transition:all .15s;}
-    .tab-btn:hover,.tab-btn.active{background:#2c5f8a;color:#fff;}
+    .tab-btn{padding:8px 18px;border:2px solid #2752E0;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#2752E0;transition:all .15s;}
+    .tab-btn:hover,.tab-btn.active{background:#2752E0;color:#fff;}
 
     /* ── PROMPT CARD ── */
     .card{border:1px solid #e2e8f0;border-radius:10px;margin-bottom:20px;overflow:hidden;}
     .card-header{padding:16px 20px;cursor:pointer;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;background:#fff;transition:background .1s;}
     .card-header:hover{background:#f7f9fb;}
     .card-header-left{flex:1;}
-    .card-title{font-size:1rem;font-weight:700;color:#1a365d;margin-bottom:3px;}
+    .card-title{font-size:1rem;font-weight:700;color:#2B3478;margin-bottom:3px;}
     .card-role{font-size:12.5px;color:#555;font-style:italic;}
     .card-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
     .badge{display:inline-block;padding:2px 9px;border-radius:4px;font-size:11.5px;font-weight:700;white-space:nowrap;}
     .badge.generic {background:#27ae60;color:#fff;}
     .badge.specific{background:#e67e22;color:#fff;}
-    .badge.light   {background:#3498db;color:#fff;}
-    .badge.heavy   {background:#2c3e50;color:#fff;}
-    .badge.tools   {background:#f0f4ff;color:#2c5f8a;border:1px solid #c7d8f8;}
+    .badge.light   {background:#45C8F0;color:#fff;}
+    .badge.heavy   {background:#2B3478;color:#fff;}
+    .badge.tools   {background:#eef4ff;color:#2752E0;border:1px solid #a3d5f0;}
     .chevron{font-size:18px;color:#aaa;flex-shrink:0;margin-top:2px;transition:transform .2s;}
     .card.open .chevron{transform:rotate(180deg);}
 
@@ -78,7 +78,7 @@
     .io-col h4{margin-bottom:10px;}
 
     /* ── FOOTER ── */
-    footer{text-align:center;padding:16px;font-size:12px;color:#aaa;border-top:1px solid #e2e8f0;}
+    footer{text-align:center;padding:16px;font-size:12px;color:#aaa;border-top:1px solid #dce6f0;}
 
     /* ── COPY BUTTON ── */
     .prompt-wrapper{position:relative;}
@@ -113,7 +113,6 @@
   <span class="brand">AI @ PMO</span>
   <a href="index.html">AI Guideline</a>
   <a href="prompt-library.html" class="active">Prompt Library</a>
-  <a href="#">Use Cases</a>
 </nav>
 
 <div class="wrapper">

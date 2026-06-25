@@ -3,174 +3,110 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Guideline & Prompt Tips</title>
+  <title>AI Guideline &amp; Prompt Tips</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: "Segoe UI", Arial, sans-serif;
-      font-size: 15px;
-      color: #333;
-      background: #fff;
-    }
+    /* CI palette
+       --navy   : #2B3478   (dark nav / headings)
+       --cobalt : #2752E0   (links / active / primary)
+       --mid    : #5280CC   (secondary blue)
+       --cyan   : #45C8F0   (accent / separators)
+       --pale   : #A3D5F0   (light tints)
+    */
 
-    /* ===== TOP NAV ===== */
-    .topnav {
-      background: #2c5f8a;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      padding: 0 24px;
-      height: 48px;
-      gap: 8px;
-    }
-    .topnav .brand {
-      font-weight: 700;
-      font-size: 16px;
-      margin-right: 24px;
-    }
-    .topnav a {
-      color: #d9eaf5;
-      text-decoration: none;
-      padding: 14px 14px;
-      font-size: 14px;
-    }
-    .topnav a:hover { background: rgba(255,255,255,0.12); }
-    .topnav a.active { background: rgba(255,255,255,0.18); color: #fff; font-weight: 600; }
+    body { font-family: "Segoe UI", Arial, sans-serif; font-size: 15px; color: #333; background: #fff; }
 
-    /* ===== LAYOUT ===== */
+    /* ── TOP NAV ── */
+    .topnav { background: #2B3478; color: #fff; display: flex; align-items: center; padding: 0 24px; height: 48px; gap: 8px; }
+    .topnav .brand { font-weight: 700; font-size: 16px; margin-right: 24px; color: #fff; letter-spacing: .01em; }
+    .topnav a { color: #c4d6f5; text-decoration: none; padding: 14px 14px; font-size: 14px; transition: background .15s; }
+    .topnav a:hover { background: rgba(255,255,255,.12); }
+    .topnav a.active { background: rgba(69,200,240,.22); color: #fff; font-weight: 600; border-bottom: 2px solid #45C8F0; }
+
+    /* ── LAYOUT ── */
     .wrapper { display: flex; min-height: calc(100vh - 48px); }
 
-    /* ===== SIDEBAR ===== */
-    .sidebar {
-      width: 240px;
-      flex-shrink: 0;
-      background: #f7f9fb;
-      border-right: 1px solid #e2e8f0;
-      padding: 20px 0;
-      position: sticky;
-      top: 0;
-      height: calc(100vh - 48px);
-      overflow-y: auto;
-    }
-    .sidebar a {
-      display: block;
-      padding: 7px 20px;
-      color: #2c5f8a;
-      text-decoration: none;
-      font-size: 13.5px;
-      border-left: 3px solid transparent;
-    }
-    .sidebar a:hover { background: #e8f0f8; border-left-color: #2c5f8a; }
-    .sidebar a.active { background: #dbeafe; border-left-color: #2c5f8a; font-weight: 600; }
-    .sidebar .section-label {
-      padding: 12px 20px 4px;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #888;
-      font-weight: 700;
-    }
+    /* ── SIDEBAR ── */
+    .sidebar { width: 240px; flex-shrink: 0; background: #f4f7fb; border-right: 1px solid #dce6f0; padding: 20px 0; position: sticky; top: 0; height: calc(100vh - 48px); overflow-y: auto; }
+    .sidebar a { display: block; padding: 7px 20px; color: #2B3478; text-decoration: none; font-size: 13.5px; border-left: 3px solid transparent; transition: background .12s; }
+    .sidebar a:hover { background: #e3eef8; border-left-color: #5280CC; }
+    .sidebar a.active { background: #dbeeff; border-left-color: #2752E0; font-weight: 600; color: #2752E0; }
+    .sidebar .section-label { padding: 12px 20px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #8899aa; font-weight: 700; }
 
-    /* ===== MAIN CONTENT ===== */
-    .content {
-      flex: 1;
-      padding: 40px 56px 60px 48px;
-      max-width: 900px;
-    }
+    /* ── MAIN ── */
+    .content { flex: 1; padding: 40px 56px 60px 48px; max-width: 900px; }
 
-    h1 { font-size: 2rem; font-weight: 700; color: #1a365d; margin-bottom: 4px; }
-    .date { color: #777; font-size: 13px; margin-bottom: 32px; }
-    h2 { font-size: 1.4rem; font-weight: 700; color: #1a365d; margin: 36px 0 12px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
-    h3 { font-size: 1.1rem; font-weight: 700; margin: 24px 0 10px; }
+    h1 { font-size: 2rem; font-weight: 700; color: #2B3478; margin-bottom: 4px; }
+    .subtitle-tag { color: #5280CC; font-size: 13.5px; font-style: italic; margin-bottom: 28px; }
+    h2 { font-size: 1.35rem; font-weight: 700; color: #2B3478; margin: 36px 0 14px; padding-bottom: 8px; border-bottom: 2px solid #45C8F0; }
     p { line-height: 1.75; margin-bottom: 14px; }
 
-    /* ===== GRID for 3 columns ===== */
-    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; margin: 24px 0; }
-    .col-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; }
-    .col-card h3 { margin-top: 0; font-size: 1rem; }
-    .col-card.red h3  { color: #c0392b; }
-    .col-card.green h3 { color: #1a7c4c; }
-    .col-card.blue h3  { color: #2c5f8a; }
-    .col-card ul { padding-left: 18px; }
-    .col-card ul li { margin-bottom: 8px; font-size: 14px; line-height: 1.6; }
+    /* ── 3-COL CARDS ── */
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: 20px 0; }
+    .col-card { border-radius: 10px; padding: 20px; }
+    .col-card h3 { margin-top: 0; font-size: .95rem; font-weight: 700; padding-bottom: 8px; margin-bottom: 12px; }
+    .col-card ul { padding-left: 16px; }
+    .col-card ul li { margin-bottom: 8px; font-size: 13.5px; line-height: 1.6; }
 
-    /* ===== PROMPT TIPS BOX ===== */
-    .tips-box {
-      background: #f0f7f4;
-      border: 1px solid #b2d8c8;
-      border-radius: 10px;
-      padding: 24px 28px;
-      margin: 24px 0;
-    }
-    .tips-box .tip-title { font-weight: 700; color: #1a365d; font-size: 1.15rem; margin-bottom: 4px; }
-    .tips-box .tip-subtitle { font-style: italic; color: #555; font-size: 13px; margin-bottom: 20px; }
-    .tip-item { margin-bottom: 18px; }
-    .tip-item .tip-num { font-weight: 700; color: #2c5f8a; font-size: 1rem; }
-    .tip-item p { margin-bottom: 0; font-style: italic; font-size: 14px; color: #444; }
+    .col-card.red   { background: #fff1f0; border: 1px solid #ffb8b0; }
+    .col-card.red   h3 { color: #c0392b; border-bottom: 2px solid #ffb8b0; }
+    .col-card.green { background: #f0faf4; border: 1px solid #a8ddb8; }
+    .col-card.green h3 { color: #1a7c4c; border-bottom: 2px solid #a8ddb8; }
+    .col-card.blue  { background: #eef4ff; border: 1px solid #a3d5f0; }
+    .col-card.blue  h3 { color: #2752E0; border-bottom: 2px solid #a3d5f0; }
 
-    /* ===== TAG GUIDE ===== */
-    .tag-box {
-      background: #fafafa;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 20px 24px;
-      margin: 24px 0;
-    }
-    .tag-box h3 { margin-top: 0; font-size: 1.05rem; }
-    .tag-box .tag-subtitle { font-style: italic; color: #555; font-size: 13px; margin-bottom: 16px; }
-    .tag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .tag-section-title { font-weight: 700; font-size: 13px; color: #333; margin-bottom: 8px; }
-    .tag-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
-    .badge {
-      display: inline-block;
-      padding: 2px 10px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 700;
-      white-space: nowrap;
+    /* ── PROMPT TIPS BOX ── */
+    .tips-box { background: #f0f6ff; border: 1px solid #a3d5f0; border-top: 3px solid #2752E0; border-radius: 10px; padding: 24px 28px; margin: 20px 0; }
+    .tips-box .tip-title { font-weight: 700; color: #2B3478; font-size: 1.1rem; margin-bottom: 2px; }
+    .tips-box .tip-subtitle { font-style: italic; color: #5280CC; font-size: 13px; margin-bottom: 22px; }
+    .tip-item { display: flex; gap: 14px; margin-bottom: 16px; align-items: flex-start; }
+    .tip-item:last-child { margin-bottom: 0; }
+    .tip-num-badge {
       flex-shrink: 0;
+      background: #2752E0;
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
       margin-top: 1px;
     }
+    .tip-body { flex: 1; }
+    .tip-body strong { display: block; font-size: 14px; color: #2B3478; margin-bottom: 2px; }
+    .tip-body p { margin-bottom: 0; font-size: 13.5px; color: #444; line-height: 1.65; }
+
+    /* ── TAG GUIDE ── */
+    .tag-box { background: #f8fafd; border: 1px solid #dce6f0; border-radius: 10px; padding: 22px 24px; margin: 20px 0; }
+    .tag-box .tag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .tag-section-title { font-weight: 700; font-size: 13px; color: #2B3478; margin-bottom: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    .tag-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+    .tag-row:last-child { margin-bottom: 0; }
+    .badge { display: inline-block; padding: 3px 11px; border-radius: 4px; font-size: 12px; font-weight: 700; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
     .badge.generic  { background: #27ae60; color: #fff; }
     .badge.specific { background: #e67e22; color: #fff; }
-    .badge.light    { background: #3498db; color: #fff; }
-    .badge.heavy    { background: #2c3e50; color: #fff; }
-    .tag-desc { font-size: 13px; line-height: 1.6; color: #444; }
+    .badge.light    { background: #45C8F0; color: #fff; }
+    .badge.heavy    { background: #2B3478; color: #fff; }
+    .tag-desc { font-size: 13px; line-height: 1.65; color: #444; }
 
-    /* ===== INFO BOX ===== */
-    .info-box {
-      background: #fffbea;
-      border-left: 4px solid #f6c90e;
-      padding: 14px 18px;
-      border-radius: 4px;
-      margin: 20px 0;
-      font-size: 14px;
-    }
+    /* ── INFO BOX ── */
+    .info-box { background: #fffbea; border-left: 4px solid #f6c90e; padding: 13px 18px; border-radius: 4px; margin: 20px 0; font-size: 14px; }
 
-    /* ===== FOOTER ===== */
-    footer {
-      text-align: center;
-      padding: 16px;
-      font-size: 12px;
-      color: #aaa;
-      border-top: 1px solid #e2e8f0;
-    }
+    /* ── FOOTER ── */
+    footer { text-align: center; padding: 16px; font-size: 12px; color: #aaa; border-top: 1px solid #dce6f0; }
   </style>
 </head>
 <body>
 
-<!-- TOP NAVIGATION -->
 <nav class="topnav">
   <span class="brand">AI @ PMO</span>
   <a href="index.html" class="active">AI Guideline</a>
   <a href="prompt-library.html">Prompt Library</a>
-  <a href="#">Use Cases</a>
 </nav>
 
 <div class="wrapper">
 
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="section-label">On This Page</div>
     <a href="#section1" class="active">1. ข้อมูลที่ควร/ไม่ควรใส่ใน AI</a>
@@ -178,25 +114,16 @@
     <a href="#section3">3. Tag Guide</a>
   </aside>
 
-  <!-- MAIN -->
   <main class="content">
     <h1>AI Guideline &amp; Prompt Tips</h1>
-    <p class="date">Jun 2026 · bluebik</p>
+    <p class="subtitle-tag">Use AI confidently — know what to protect and how to ask well.</p>
 
-    <p>
-      คู่มือนี้ช่วยให้ทีม PMO ใช้ AI ได้อย่างมั่นใจ — รู้ว่าต้องปกป้องข้อมูลอะไร
-      และถามอย่างไรให้ได้ผลลัพธ์ที่ดี
-      (<em>Use AI confidently — know what to protect and how to ask well.</em>)
-    </p>
-
-    <!-- ===================== SECTION 1 ===================== -->
+    <!-- ── SECTION 1 ── -->
     <h2 id="section1">1. ข้อมูลที่ควร/ไม่ควรใส่ใน AI</h2>
 
     <div class="three-col">
-
-      <!-- Do NOT Enter -->
       <div class="col-card red">
-        <h3>Do NOT Enter</h3>
+        <h3>🚫 Do NOT Enter</h3>
         <ul>
           <li>Client names, project codes, or contract details</li>
           <li>Personal data (names, IDs, salaries, performance records)</li>
@@ -207,9 +134,8 @@
         </ul>
       </div>
 
-      <!-- Safe to Enter -->
       <div class="col-card green">
-        <h3>Safe to Enter</h3>
+        <h3>✅ Safe to Enter</h3>
         <ul>
           <li>Anonymised scenarios ("Project X", "Client A")</li>
           <li>General frameworks, templates, and methodologies</li>
@@ -219,122 +145,96 @@
         </ul>
       </div>
 
-      <!-- Before Sharing AI Output -->
       <div class="col-card blue">
-        <h3>Before Sharing AI Output</h3>
+        <h3>📤 Before Sharing AI Output</h3>
         <ul>
           <li>Verify all facts, numbers, and names are accurate</li>
           <li>Remove any hallucinated data or AI-style phrasing</li>
           <li>Add your professional context and judgement before sharing</li>
         </ul>
       </div>
-
     </div>
 
     <div class="info-box">
       <strong>จำง่าย ๆ:</strong> ถ้าข้อมูลนั้นอยู่ใน NDA หรือเปิดเผยในที่สาธารณะไม่ได้ — อย่าใส่ใน AI
     </div>
 
-    <!-- ===================== SECTION 2 ===================== -->
+    <!-- ── SECTION 2 ── -->
     <h2 id="section2">2. Prompt Tips</h2>
-    <p>
-      แนวคิดสำหรับการได้ผลลัพธ์ที่ดีขึ้นจาก AI ทุกครั้งที่ใช้งาน
-      (<em>Mindset for getting better output from AI every time.</em>)
-    </p>
 
     <div class="tips-box">
       <div class="tip-title">Prompt Tips</div>
       <div class="tip-subtitle">Mindset for getting better output from AI every time.</div>
 
       <div class="tip-item">
-        <div class="tip-num">01 &nbsp; Be Specific</div>
-        <p>The more context you give (role, goal, format), the better the output.
-        Recommend to use the <strong>CREATE formula</strong>
-        (C Character · R Request · E Examples · A Adjustments · T Type of Output · E Evaluation)
-        to write prompts.</p>
+        <div class="tip-num-badge">01</div>
+        <div class="tip-body">
+          <strong>Be Specific</strong>
+          <p>The more context you give (role, goal, format), the better the output. Recommend to use the <strong>CREATE formula</strong> (C Character · R Request · E Examples · A Adjustments · T Type of Output · E Evaluation) to write prompts.</p>
+        </div>
       </div>
 
       <div class="tip-item">
-        <div class="tip-num">02 &nbsp; Specify Your Audience</div>
-        <p>Tell AI who will read the output.
-        Executive-level vs. team-level tone changes everything.</p>
+        <div class="tip-num-badge">02</div>
+        <div class="tip-body">
+          <strong>Specify Your Audience</strong>
+          <p>Tell AI who will read the output. Executive-level vs. team-level tone changes everything.</p>
+        </div>
       </div>
 
       <div class="tip-item">
-        <div class="tip-num">03 &nbsp; AI = First Draft, You = Final Editor</div>
-        <p>Always review before using.
-        AI can be confidently wrong — your judgement and expertise are the final filter.</p>
+        <div class="tip-num-badge">03</div>
+        <div class="tip-body">
+          <strong>AI = First Draft, You = Final Editor</strong>
+          <p>Always review before using. AI can be confidently wrong — your judgement and expertise are the final filter.</p>
+        </div>
       </div>
 
       <div class="tip-item">
-        <div class="tip-num">04 &nbsp; Don't Give Up</div>
-        <p>If output isn't right, add constraints, change tone, or give a counter-example.</p>
+        <div class="tip-num-badge">04</div>
+        <div class="tip-body">
+          <strong>Don't Give Up</strong>
+          <p>If output isn't right, add constraints, change tone, or give a counter-example.</p>
+        </div>
       </div>
 
       <div class="tip-item">
-        <div class="tip-num">05 &nbsp; One Task at a Time</div>
-        <p>For the best results, ask one task per prompt.
-        Split complex requests into multiple prompts.</p>
+        <div class="tip-num-badge">05</div>
+        <div class="tip-body">
+          <strong>One Task at a Time</strong>
+          <p>For the best results, ask one task per prompt. Split complex requests into multiple prompts.</p>
+        </div>
       </div>
     </div>
 
-    <!-- ===================== SECTION 3 ===================== -->
+    <!-- ── SECTION 3 ── -->
     <h2 id="section3">3. Tag Guide</h2>
-    <p>
-      วิธีอ่าน Classification Tags บน Prompt Slide แต่ละใบ
-      (<em>How to read the classification tags on each sample prompt slide.</em>)
-    </p>
+    <p style="font-size:14px;color:#555;margin-bottom:16px;">How to read the classification tags on each sample prompt slide.</p>
 
     <div class="tag-box">
       <div class="tag-grid">
-
-        <!-- Prompt Readiness -->
         <div>
           <div class="tag-section-title">Prompt Readiness</div>
-
           <div class="tag-row">
             <span class="badge generic">Generic</span>
-            <span class="tag-desc">
-              <strong>No project-specific input required.</strong>
-              Copy and send as-is, or with minor wording changes.
-              Best for routine tasks where output format matters more than project context.
-            </span>
+            <span class="tag-desc"><strong>No project-specific input required.</strong> Copy and send as-is, or with minor wording changes. Best for routine tasks where output format matters more than project context.</span>
           </div>
-
           <div class="tag-row">
             <span class="badge specific">Specific</span>
-            <span class="tag-desc">
-              <strong>Must be customised before use</strong> — replace all [bracket] placeholders
-              with your actual project name, role, and documents.
-              The more context you add, the more accurate the output.
-            </span>
+            <span class="tag-desc"><strong>Must be customised before use</strong> — replace all [bracket] placeholders with your actual project name, role, and documents. The more context you add, the more accurate the output.</span>
           </div>
         </div>
-
-        <!-- Prompt Weight -->
         <div>
           <div class="tag-section-title">Prompt Weight</div>
-
           <div class="tag-row">
             <span class="badge light">Light</span>
-            <span class="tag-desc">
-              <strong>Works with text input only</strong> — no file attachments needed.
-              Type or paste key information directly into the prompt.
-              Faster to run; suited for tasks where context fits in a few sentences.
-            </span>
+            <span class="tag-desc"><strong>Works with text input only</strong> — no file attachments needed. Type or paste key information directly into the prompt. Faster to run; suited for tasks where context fits in a few sentences.</span>
           </div>
-
           <div class="tag-row">
             <span class="badge heavy">Heavy</span>
-            <span class="tag-desc">
-              <strong>Requires attached project documents</strong>
-              (e.g. charter, RAID log, meeting notes).
-              AI reads the files to generate output — quality depends on what you attach.
-              Ensure documents are current before use.
-            </span>
+            <span class="tag-desc"><strong>Requires attached project documents</strong> (e.g. charter, RAID log, meeting notes). AI reads the files to generate output — quality depends on what you attach. Ensure documents are current before use.</span>
           </div>
         </div>
-
       </div>
     </div>
 
@@ -342,6 +242,5 @@
 </div>
 
 <footer>© 2026 BLUEBIK GROUP. ALL RIGHTS RESERVED.</footer>
-
 </body>
 </html>
