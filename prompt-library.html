@@ -79,6 +79,31 @@
 
     /* ── FOOTER ── */
     footer{text-align:center;padding:16px;font-size:12px;color:#aaa;border-top:1px solid #e2e8f0;}
+
+    /* ── COPY BUTTON ── */
+    .prompt-wrapper{position:relative;}
+    .copy-btn{
+      position:absolute;top:10px;right:10px;
+      background:rgba(255,255,255,.1);
+      border:1px solid rgba(255,255,255,.22);
+      color:#9ec8e8;padding:3px 12px;
+      border-radius:5px;font-size:11.5px;cursor:pointer;
+      font-family:"Segoe UI",Arial,sans-serif;
+      transition:background .15s,color .15s;z-index:1;
+    }
+    .copy-btn:hover{background:rgba(255,255,255,.22);color:#fff;}
+    .copy-btn.copied{color:#6ee7b7;border-color:#6ee7b7;}
+
+    /* ── BRACKET HIGHLIGHT ── */
+    .bh{color:#fbbf24;font-weight:700;}
+
+    /* ── TEMPLATE REMARK ── */
+    .template-remark{
+      display:flex;align-items:center;gap:6px;
+      background:#fff8e6;border-left:3px solid #f59e0b;
+      padding:6px 12px;font-size:12.5px;color:#92400e;
+      border-radius:0 4px 4px 0;margin-top:8px;margin-bottom:4px;
+    }
   </style>
 </head>
 <body>
@@ -1436,16 +1461,64 @@ Evaluation: Every finding must cite a source. Flag any finding without supportin
 <footer>© 2026 BLUEBIK GROUP. ALL RIGHTS RESERVED.</footer>
 
 <script>
+  // ── Card toggle ──
   function toggle(header) {
-    const card = header.closest('.card');
-    card.classList.toggle('open');
+    header.closest('.card').classList.toggle('open');
   }
-  // Smooth scroll for sidebar links
+
+  // ── Sidebar smooth scroll ──
   document.querySelectorAll('.sidebar a[href^="#"]').forEach(a => {
     a.addEventListener('click', e => {
       e.preventDefault();
-      const target = document.querySelector(a.getAttribute('href'));
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // ── Enhance prompt blocks: remark, bracket highlight, copy button ──
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.prompt-label').forEach(label => {
+      const block = label.nextElementSibling;
+      if (!block || !block.classList.contains('prompt-block')) return;
+
+      const isTemplate = /^template/i.test(label.textContent.trim());
+
+      // 1. Remark notice (Template only)
+      if (isTemplate) {
+        label.textContent = 'Template';
+        const remark = document.createElement('div');
+        remark.className = 'template-remark';
+        remark.innerHTML = '✏️ <strong>Replace the [ ] parts</strong> with your project details before use.';
+        label.after(remark);
+      }
+
+      // 2. Wrap block for absolute-positioned copy button
+      const wrapper = document.createElement('div');
+      wrapper.className = 'prompt-wrapper';
+      block.parentNode.insertBefore(wrapper, block);
+      wrapper.appendChild(block);
+
+      // 3. Copy button
+      const btn = document.createElement('button');
+      btn.className = 'copy-btn';
+      btn.textContent = 'Copy';
+      btn.addEventListener('click', () => {
+        // Copy raw text (no HTML tags)
+        navigator.clipboard.writeText(block.innerText).then(() => {
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+        });
+      });
+      wrapper.appendChild(btn);
+
+      // 4. Highlight [...] in yellow (Template only, applied after wrap)
+      if (isTemplate) {
+        block.innerHTML = block.innerHTML.replace(
+          /(\[[^\]\n]+\])/g,
+          '<span class="bh">$1</span>'
+        );
+      }
     });
   });
 </script>
